@@ -29,10 +29,6 @@ SOFTWARE.
 #include "unit_test_framework.h"
 
 #include "etl/fixed_sized_memory_block_allocator.h"
-#include "etl/message.h"
-#include "etl/message_bus.h"
-#include "etl/message_router.h"
-#include "etl/queue.h"
 #include "etl/reference_counted_message_pool.h"
 #include "etl/shared_message.h"
 
@@ -87,7 +83,7 @@ namespace
       Message1                                                  message1(6);
       etl::reference_counted_message<Message1, etl::atomic_int> temp(message1, message_pool);
       const etl::ireference_counted_message&                    rcmessage = temp;
-      rcmessage.~ireference_counted_message();
+      temp.~reference_counted_message<Message1, etl::atomic_int>();
     }
   }
 }  // namespace
