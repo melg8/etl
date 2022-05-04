@@ -12,6 +12,17 @@ project(etl VERSION ${ETL_VERSION})
 option(BUILD_TESTS "Build unit tests" OFF)
 option(NO_STL "No STL" OFF)
 
+# Add new cxx flags to existing cxx flags.
+function(add_compiler_flags flags)
+  foreach(flag ${flags})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} ${flag}"
+        PARENT_SCOPE)
+  endforeach()
+endfunction()
+
+add_compiler_flags(-fsanitize=address,undefined)
+
 add_library(${PROJECT_NAME} INTERFACE)
 
 target_include_directories(${PROJECT_NAME} SYSTEM INTERFACE
