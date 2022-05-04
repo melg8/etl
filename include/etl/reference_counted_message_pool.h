@@ -160,11 +160,11 @@ namespace etl
     void release(const etl::ireference_counted_message& rcmessage)
     {
 //      rcmessage.~ireference_counted_message();
-//      lock();
-//      bool released = memory_block_allocator.release(&rcmessage);
-//      unlock();
+      lock();
+      bool released = memory_block_allocator.release(&rcmessage);
+      unlock();
 
-//      ETL_ASSERT(released, ETL_ERROR(etl::reference_counted_message_pool_release_failure));
+      ETL_ASSERT(released, ETL_ERROR(etl::reference_counted_message_pool_release_failure));
     }
 
 #if ETL_USING_CPP11

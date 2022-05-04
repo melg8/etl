@@ -176,14 +176,6 @@ namespace
       }
     };
 
-    // home/runner/work/etl/etl/test/test_shared_message.cpp:191:92: runtime error:
-    // member call on address 0x7fffd0000380 which does not point to an object of type 'reference_counted_message'
-    // 0x7fffd0000380: note: object is of type 'etl::ireference_counted_message'
-    // FAILURE: 1 out of 37 tests failed (1 failures).
-    // Test time: 0.02 seconds.
-    // 00 00 00 00  30 f8 09 7c 3e 56 00 00  b0 f8 09 7c 3e 56 00 00  20 f9 09 7c 3e 56 00 00  06 00 00 00
-    // vptr for 'etl::ireference_counted_message'
-
     TEST(test_reference_counted_pool_exceptions)
     {
       using pool_message_parameters = etl::atomic_counted_message_pool::pool_message_parameters<Message1, Message2>;
@@ -195,10 +187,17 @@ namespace
 
       etl::atomic_counted_message_pool message_pool(memory_allocator);
 
-      Message1                                                   message1(6);
-      etl::reference_counted_message<Message1, std::atomic<int>> temp(message1, message_pool);
+      Message1                                                  message1(6);
+      etl::reference_counted_message<Message1, etl::atomic_int> temp(message1, message_pool);
 
-      message_pool.release(temp);
+      try
+      {
+        message_pool.release(temp);
+      }
+      catch (etl::exception e)
+      {
+        CHECK_EQUAL(std::string("reference_counted_message_pool:release failure"), std::string(e.what()));
+      }
     }
   }
 }  // namespace
