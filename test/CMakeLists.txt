@@ -219,7 +219,8 @@ set(TEST_SOURCE_FILES
 #	test_rms.cpp
 #	test_scaled_rounding.cpp
 #	test_set.cpp
-        test_shared_message.cpp
+#        test_shared_message.cpp
+        test_shared_message_1.cpp
 #	test_singleton.cpp
 #	test_smallest.cpp
 #	test_span.cpp

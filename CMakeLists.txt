@@ -21,6 +21,8 @@ function(add_compiler_flags flags)
   endforeach()
 endfunction()
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_compiler_flags(-fsanitize=address,undefined)
 
 add_library(${PROJECT_NAME} INTERFACE)
