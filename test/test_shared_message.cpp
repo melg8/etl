@@ -41,10 +41,6 @@ namespace
   constexpr etl::message_id_t MessageId1 = 1U;
   constexpr etl::message_id_t MessageId2 = 2U;
 
-  constexpr etl::message_router_id_t RouterId1 = 1U;
-  constexpr etl::message_router_id_t RouterId2 = 2U;
-
-  //*************************************************************************
   struct Message1 : public etl::message<MessageId1>
   {
     Message1(int i_)
@@ -59,7 +55,6 @@ namespace
     int i;
   };
 
-  //*************************************************************************
   struct Message2 : public etl::message<MessageId2>
   {
     ~Message2()
@@ -67,87 +62,8 @@ namespace
     }
   };
 
-  //*************************************************************************
-  struct Router1 : public etl::message_router<Router1, Message1, Message2>
-  {
-    Router1()
-      : message_router(RouterId1)
-      , count_message1(0)
-      , count_message2(0)
-      , count_unknown_message(0)
-    {
-    }
-
-    void on_receive(const Message1& message)
-    {
-      ++count_message1;
-    }
-
-    void on_receive(const Message2& message)
-    {
-      ++count_message2;
-    }
-
-    void on_receive_unknown(const etl::imessage& message)
-    {
-    }
-
-    void clear()
-    {
-      count_message1 = 0;
-      count_message2 = 0;
-      count_unknown_message = 0;
-    }
-
-    int count_message1;
-    int count_message2;
-    int count_unknown_message;
-  };
-
-  //*************************************************************************
-  struct Router2 : public etl::message_router<Router2, Message1>
-  {
-    Router2()
-      : message_router(RouterId2)
-      , count_message1(0)
-      , count_message2(0)
-      , count_unknown_message(0)
-    {
-    }
-
-    void on_receive(const Message1& message)
-    {
-      ++count_message1;
-    }
-
-    void on_receive_unknown(const etl::imessage& message)
-    {
-      ++count_unknown_message;
-    }
-
-    void clear()
-    {
-      count_message1 = 0;
-      count_message2 = 0;
-      count_unknown_message = 0;
-    }
-
-    int count_message1;
-    int count_message2;
-    int count_unknown_message;
-  };
-
-  //*************************************************************************
-  struct Bus : public etl::message_bus<2U>
-  {
-  };
-
   SUITE(test_shared_message)
   {
-    Router1 router1;
-    Router2 router2;
-    Bus     bus;
-
     using pool_message_parameters = etl::atomic_counted_message_pool::pool_message_parameters<Message1, Message2>;
 
     etl::fixed_sized_memory_block_allocator<pool_message_parameters::max_size,
@@ -156,25 +72,6 @@ namespace
       memory_allocator;
 
     etl::atomic_counted_message_pool message_pool(memory_allocator);
-
-    //*************************************************************************
-    class Message2Allocator : public etl::ireference_counted_message_pool
-    {
-    public:
-      static etl::reference_counted_message<Message2, void>& Get()
-      {
-        static Message2Allocator                              allocator;
-        static Message2                                       message2;
-        static etl::reference_counted_message<Message2, void> rcm2(message2, allocator);
-
-        return rcm2;
-      }
-
-      void release(const etl::ireference_counted_message& msg) override
-      {
-        // Do nothing.
-      }
-    };
 
     TEST(test_reference_counted_pool_exceptions)
     {
