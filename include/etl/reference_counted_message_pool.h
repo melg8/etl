@@ -159,7 +159,7 @@ namespace etl
     //*************************************************************************
     void release(const etl::ireference_counted_message& rcmessage)
     {
-//      rcmessage.~ireference_counted_message();
+      rcmessage.~ireference_counted_message();
       lock();
       bool released = memory_block_allocator.release(&rcmessage);
       unlock();

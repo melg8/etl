@@ -189,15 +189,8 @@ namespace
 
       Message1                                                  message1(6);
       etl::reference_counted_message<Message1, etl::atomic_int> temp(message1, message_pool);
-
-      try
-      {
-        message_pool.release(temp);
-      }
-      catch (etl::exception e)
-      {
-        CHECK_EQUAL(std::string("reference_counted_message_pool:release failure"), std::string(e.what()));
-      }
+      const etl::ireference_counted_message&                    rcmessage = temp;
+      rcmessage.~ireference_counted_message();
     }
   }
 }  // namespace
