@@ -6800,38 +6800,7 @@ struct Message2 : public etl::message<MessageId2> {
   ~Message2() {}
 };
 
-namespace Suitetest_shared_message {
-namespace UnitTestSuite {
-inline char const* GetSuiteName() { return "test_shared_message"; }
-}  // namespace UnitTestSuite
-}  // namespace Suitetest_shared_message
-namespace Suitetest_shared_message {
-using pool_message_parameters =
-    etl::atomic_counted_message_pool::pool_message_parameters<Message1,
-                                                              Message2>;
-
-etl::fixed_sized_memory_block_allocator<pool_message_parameters::max_size,
-                                        pool_message_parameters::max_alignment,
-                                        4U>
-    memory_allocator;
-
-etl::atomic_counted_message_pool message_pool(memory_allocator);
-
-class Testtest_reference_counted_pool_exceptions : public UnitTest::Test {
- public:
-  Testtest_reference_counted_pool_exceptions()
-      : Test("test_reference_counted_pool_exceptions",
-             UnitTestSuite::GetSuiteName(),
-             "/home/user/work/other/etl/test/test_shared_message.cpp",
-             72) {}
-
- private:
-  virtual void RunImpl() const;
-} static testtest_reference_counted_pool_exceptionsInstance;
-static UnitTest::ListAdder addertest_reference_counted_pool_exceptions(
-    UnitTest::Test::GetTestList(),
-    &testtest_reference_counted_pool_exceptionsInstance);
-void Testtest_reference_counted_pool_exceptions::RunImpl() const {
+SUITE(test_shared_message) {
   using pool_message_parameters =
       etl::atomic_counted_message_pool::pool_message_parameters<Message1,
                                                                 Message2>;
@@ -6843,11 +6812,23 @@ void Testtest_reference_counted_pool_exceptions::RunImpl() const {
 
   etl::atomic_counted_message_pool message_pool(memory_allocator);
 
-  Message1 message1(6);
-  etl::reference_counted_message<Message1, etl::atomic_int> temp(message1,
-                                                                 message_pool);
-  const etl::ireference_counted_message& rcmessage = temp;
-  temp.~reference_counted_message<Message1, etl::atomic_int>();
+  TEST(test_reference_counted_pool_exceptions) {
+    using pool_message_parameters =
+        etl::atomic_counted_message_pool::pool_message_parameters<Message1,
+                                                                  Message2>;
+
+    etl::fixed_sized_memory_block_allocator<
+        pool_message_parameters::max_size,
+        pool_message_parameters::max_alignment, 4U>
+        memory_allocator;
+
+    etl::atomic_counted_message_pool message_pool(memory_allocator);
+
+    Message1 message1(6);
+    etl::reference_counted_message<Message1, etl::atomic_int> temp(
+        message1, message_pool);
+    const etl::ireference_counted_message& rcmessage = temp;
+    temp.~reference_counted_message<Message1, etl::atomic_int>();
+  }
 }
-}  // namespace Suitetest_shared_message
 }  // namespace
