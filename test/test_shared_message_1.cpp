@@ -76,11 +76,15 @@ SUITE(test_shared_message) {
     etl::reference_counted_message<Message1, etl::atomic_int>* prcm;
     CHECK_NO_THROW(prcm = message_pool.allocate<Message1>(6));
 
-    etl::reference_counted_message<Message1, etl::atomic_int> temp(
-        prcm->get_message(), message_pool);
+    using rcm = etl::reference_counted_message<Message1, etl::atomic_int>;
+    alignas(rcm) unsigned char buf[sizeof(rcm)];
+
+    Message1 message1(6);
+
+    rcm* temp = new (buf) rcm(message1, message_pool);
 
     try {
-      message_pool.release(temp);
+      message_pool.release(*temp);
     } catch (etl::exception e) {
       CHECK_EQUAL(std::string("reference_counted_message_pool:release failure"),
                   std::string(e.what()));
