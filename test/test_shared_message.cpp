@@ -32,58 +32,70 @@ SOFTWARE.
 #include "etl/reference_counted_message_pool.h"
 #include "etl/shared_message.h"
 
-namespace
-{
-  constexpr etl::message_id_t MessageId1 = 1U;
-  constexpr etl::message_id_t MessageId2 = 2U;
+namespace {
+constexpr etl::message_id_t MessageId1 = 1U;
+constexpr etl::message_id_t MessageId2 = 2U;
 
-  struct Message1 : public etl::message<MessageId1>
-  {
-    Message1(int i_)
-      : i(i_)
-    {
-    }
+struct Message1 : public etl::message<MessageId1> {
+  Message1(int i_) : i(i_) {}
 
-    ~Message1()
-    {
-    }
+  ~Message1() {}
 
-    int i;
-  };
+  int i;
+};
 
-  struct Message2 : public etl::message<MessageId2>
-  {
-    ~Message2()
-    {
-    }
-  };
+struct Message2 : public etl::message<MessageId2> {
+  ~Message2() {}
+};
 
-  SUITE(test_shared_message)
-  {
-    using pool_message_parameters = etl::atomic_counted_message_pool::pool_message_parameters<Message1, Message2>;
+SUITE(test_shared_message) {
+  using pool_message_parameters =
+      etl::atomic_counted_message_pool::pool_message_parameters<Message1,
+                                                                Message2>;
 
-    etl::fixed_sized_memory_block_allocator<pool_message_parameters::max_size,
-                                            pool_message_parameters::max_alignment,
-                                            4U>
+  etl::fixed_sized_memory_block_allocator<
+      pool_message_parameters::max_size, pool_message_parameters::max_alignment,
+      4U>
       memory_allocator;
+
+  etl::atomic_counted_message_pool message_pool(memory_allocator);
+
+  TEST(test_reference_counted_pool_exceptions) {
+    using pool_message_parameters =
+        etl::atomic_counted_message_pool::pool_message_parameters<Message1,
+                                                                  Message2>;
+
+    etl::fixed_sized_memory_block_allocator<
+        pool_message_parameters::max_size,
+        pool_message_parameters::max_alignment, 4U>
+        memory_allocator;
 
     etl::atomic_counted_message_pool message_pool(memory_allocator);
 
-    TEST(test_reference_counted_pool_exceptions)
-    {
-      using pool_message_parameters = etl::atomic_counted_message_pool::pool_message_parameters<Message1, Message2>;
+    etl::reference_counted_message<Message1, etl::atomic_int>* prcm;
+    CHECK_NO_THROW(prcm = message_pool.allocate<Message1>(1));
+    CHECK_NO_THROW(prcm = message_pool.allocate<Message1>(2));
+    CHECK_NO_THROW(prcm = message_pool.allocate<Message1>(3));
+    CHECK_NO_THROW(prcm = message_pool.allocate<Message1>(4));
 
-      etl::fixed_sized_memory_block_allocator<pool_message_parameters::max_size,
-                                              pool_message_parameters::max_alignment,
-                                              4U>
-        memory_allocator;
+    try {
+      prcm = message_pool.allocate<Message1>(5);
+    } catch (etl::exception e) {
+      CHECK_EQUAL(
+          std::string("reference_counted_message_pool:allocation failure"),
+          std::string(e.what()));
+    }
 
-      etl::atomic_counted_message_pool message_pool(memory_allocator);
+    Message1 message1(6);
+    etl::reference_counted_message<Message1, etl::atomic_int> temp(
+        message1, message_pool);
 
-      Message1                                                  message1(6);
-      etl::reference_counted_message<Message1, etl::atomic_int> temp(message1, message_pool);
-      const etl::ireference_counted_message&                    rcmessage = temp;
-      temp.~reference_counted_message<Message1, etl::atomic_int>();
+    try {
+      message_pool.release(temp);
+    } catch (etl::exception e) {
+      CHECK_EQUAL(std::string("reference_counted_message_pool:release failure"),
+                  std::string(e.what()));
     }
   }
+}
 }  // namespace
