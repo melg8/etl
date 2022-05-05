@@ -9,55 +9,6 @@
 #include "unit_test_framework.h"
 
 namespace etl {
-namespace traits {
-
-static constexpr bool using_builtin_is_assignable = (1 == 1);
-static constexpr bool using_builtin_is_constructible = (1 == 1);
-static constexpr bool using_builtin_is_trivially_constructible =
-    ((1 || 1) == 1);
-static constexpr bool using_builtin_is_trivially_destructible = ((1 || 0) == 1);
-static constexpr bool using_builtin_is_trivially_copyable = ((1 || 1) == 1);
-}  // namespace traits
-}  // namespace etl
-namespace etl {
-namespace traits {
-
-static constexpr bool using_stl = (1 == 1);
-static constexpr bool using_stlport = (0 == 1);
-static constexpr bool using_cpp11 = ((1 == 1) == 1);
-static constexpr bool using_cpp14 = ((1 == 1) == 1);
-static constexpr bool using_cpp17 = (((201703L >= 201703L) == 1) == 1);
-static constexpr bool using_cpp20 = (((201703L >= 202002L) == 1) == 1);
-static constexpr bool using_cpp23 = ((0 == 1) == 1);
-static constexpr bool using_exceptions = (1 == 1);
-static constexpr bool using_gcc_compiler = (1 == 1);
-static constexpr bool using_microsoft_compiler = (0 == 1);
-static constexpr bool using_arm5_compiler = (0 == 1);
-static constexpr bool using_arm6_compiler = (0 == 1);
-static constexpr bool using_arm7_compiler = (0 == 1);
-static constexpr bool using_clang_compiler = (0 == 1);
-static constexpr bool using_green_hills_compiler = (0 == 1);
-static constexpr bool using_iar_compiler = (0 == 1);
-static constexpr bool using_intel_compiler = (0 == 1);
-static constexpr bool using_texas_instruments_compiler = (0 == 1);
-static constexpr bool using_generic_compiler = (0 == 1);
-static constexpr bool has_8bit_types = (1 == 1);
-static constexpr bool has_64bit_types = (1 == 1);
-static constexpr bool has_atomic = (1 == 1);
-static constexpr bool has_nullptr = (1 == 1);
-static constexpr bool has_large_char = (0 == 1);
-static constexpr bool has_string_truncation_checks = (1 == 1);
-static constexpr bool has_error_on_string_truncation = (0 == 1);
-static constexpr bool has_string_clear_after_use = (1 == 1);
-static constexpr bool has_istring_repair = (1 == 1);
-static constexpr bool has_ivector_repair = (1 == 1);
-static constexpr bool has_mutable_array_view = (1 == 1);
-static constexpr bool has_ideque_repair = (1 == 1);
-static constexpr bool is_debug_build = (1 == 1);
-static constexpr long cplusplus = 201703L;
-}  // namespace traits
-}  // namespace etl
-namespace etl {
 
 template <typename T>
 class successor {
@@ -84,6 +35,8 @@ namespace etl {
 class imemory_block_allocator : public successor<imemory_block_allocator> {
  public:
   imemory_block_allocator() {}
+
+  virtual ~imemory_block_allocator() {}
 
   void* allocate(size_t required_size, size_t required_alignment) {
     void* p = allocate_block(required_size, required_alignment);
@@ -1160,9 +1113,20 @@ inline bool operator>=(const pair<T1, T2>& a, const pair<T1, T2>& b) {
   return !(a < b);
 }
 
-template <typename T, typename U = T>
-T exchange(T& object, const U& new_value) {
-  return std::exchange(object, new_value);
+template <typename T>
+T exchange(T& object, const T& new_value)
+{
+  T old_value = object;
+  object = new_value;
+  return old_value;
+}
+
+template <typename T, typename U>
+T exchange(T& object, const U& new_value)
+{
+  T old_value = object;
+  object = new_value;
+  return old_value;
 }
 
 template <typename T>
@@ -1230,7 +1194,7 @@ inline constexpr in_place_t in_place{};
 
 template <typename T>
 struct in_place_type_t {
-  explicit constexpr in_place_type_t(){};
+  explicit constexpr in_place_type_t() {}
 };
 
 template <typename T>
@@ -3221,7 +3185,6 @@ template <typename TIterator, typename TUnaryPredicate>
                                      TUnaryPredicate predicate) {
   return etl::find_if(begin, end, predicate) == end;
 }
-# 1834 "/home/user/work/other/etl/test/../include/etl/algorithm.h"
 template <typename TIterator, typename TCompare>
 void sort(TIterator first, TIterator last, TCompare compare) {
   std::sort(first, last, compare);
@@ -4983,8 +4946,8 @@ mem_char(TPointer sb, TPointer se, T value) noexcept {
              sizeof(typename etl::iterator_traits<TPointer>::value_type) *
                  static_cast<size_t>(se - sb));
 
-  return (result == 0U) ? reinterpret_cast<char*>(se)
-                        : reinterpret_cast<char*>(result);
+  return (result == nullptr) ? reinterpret_cast<char*>(se)
+                             : reinterpret_cast<char*>(result);
 }
 template <typename TPointer, typename T>
 [[nodiscard]] typename etl::enable_if<
@@ -4997,8 +4960,8 @@ mem_char(TPointer sb, TPointer se, T value) noexcept {
              sizeof(typename etl::iterator_traits<TPointer>::value_type) *
                  static_cast<size_t>(se - sb));
 
-  return (result == 0U) ? reinterpret_cast<const char*>(se)
-                        : reinterpret_cast<const char*>(result);
+  return (result == nullptr) ? reinterpret_cast<const char*>(se)
+                             : reinterpret_cast<const char*>(result);
 }
 template <typename TPointer, typename T>
 [[nodiscard]] typename etl::enable_if<
@@ -5010,8 +4973,8 @@ mem_char(TPointer sb, size_t n, T value) noexcept {
       memchr(reinterpret_cast<void*>(sb), static_cast<char>(value),
              sizeof(typename etl::iterator_traits<TPointer>::value_type) * n);
 
-  return (result == 0U) ? reinterpret_cast<char*>(sb + n)
-                        : reinterpret_cast<char*>(result);
+  return (result == nullptr) ? reinterpret_cast<char*>(sb + n)
+                             : reinterpret_cast<char*>(result);
 }
 template <typename TPointer, typename T>
 [[nodiscard]] typename etl::enable_if<
@@ -5023,8 +4986,8 @@ mem_char(TPointer sb, size_t n, T value) noexcept {
       memchr(reinterpret_cast<const void*>(sb), static_cast<char>(value),
              sizeof(typename etl::iterator_traits<TPointer>::value_type) * n);
 
-  return (result == 0U) ? reinterpret_cast<const char*>(sb + n)
-                        : reinterpret_cast<const char*>(result);
+  return (result == nullptr) ? reinterpret_cast<const char*>(sb + n)
+                             : reinterpret_cast<const char*>(result);
 }
 }  // namespace etl
 
@@ -5068,7 +5031,7 @@ class ipool {
           throw(((etl::pool_element_size(
               "/home/user/work/other/etl/test/../include/etl/ipool.h", 117))));
         }
-      };
+      }
     }
 
     return reinterpret_cast<T*>(allocate_item());
@@ -5092,7 +5055,7 @@ class ipool {
           throw(((etl::pool_element_size(
               "/home/user/work/other/etl/test/../include/etl/ipool.h", 226))));
         }
-      };
+      }
     }
 
     p_object->~T();
@@ -5162,7 +5125,7 @@ class ipool {
           throw(((pool_no_allocation(
               "/home/user/work/other/etl/test/../include/etl/ipool.h", 369))));
         }
-      };
+      }
     }
 
     return p_value;
@@ -5174,7 +5137,7 @@ class ipool {
         throw(((pool_object_not_in_pool(
             "/home/user/work/other/etl/test/../include/etl/ipool.h", 381))));
       }
-    };
+    }
 
     if (p_next != nullptr) {
       *(uintptr_t*)p_value = reinterpret_cast<uintptr_t>(p_next);
@@ -5568,16 +5531,6 @@ namespace etl {
 
 typedef std::memory_order memory_order;
 
-static constexpr etl::memory_order memory_order_relaxed =
-    std::memory_order_relaxed;
-static constexpr etl::memory_order memory_order_consume =
-    std::memory_order_consume;
-static constexpr etl::memory_order memory_order_acquire =
-    std::memory_order_acquire;
-static constexpr etl::memory_order memory_order_release =
-    std::memory_order_release;
-static constexpr etl::memory_order memory_order_acq_rel =
-    std::memory_order_acq_rel;
 static constexpr etl::memory_order memory_order_seq_cst =
     std::memory_order_seq_cst;
 
@@ -5980,7 +5933,7 @@ namespace etl {
 
 class ireference_counter {
  public:
-  virtual ~ireference_counter(){};
+  virtual ~ireference_counter() {}
   virtual void set_reference_count(int32_t value) = 0;
   virtual void increment_reference_count() = 0;
   [[nodiscard]] virtual int32_t decrement_reference_count() = 0;
@@ -5999,13 +5952,6 @@ class reference_counter : public ireference_counter {
   virtual void increment_reference_count() override { ++reference_count; }
 
   [[nodiscard]] virtual int32_t decrement_reference_count() override {
-    (static_cast<bool>(reference_count > 0)
-         ? void(0)
-         : __assert_fail("reference_count > 0",
-                         "/home/user/work/other/etl/test/../include/etl/"
-                         "reference_counted_object.h",
-                         90, __extension__ __PRETTY_FUNCTION__));
-
     return int32_t(--reference_count);
   }
 
@@ -6592,7 +6538,7 @@ class reference_counted_message_pool
             "reference_counted_message_pool.h",
             125))));
       }
-    };
+    }
 
     return p;
   }
@@ -6623,12 +6569,12 @@ class reference_counted_message_pool
             "reference_counted_message_pool.h",
             152))));
       }
-    };
+    }
 
     return p;
   }
 
-  void release(const etl::ireference_counted_message& rcmessage) {
+  void release(const etl::ireference_counted_message& rcmessage) override {
     rcmessage.~ireference_counted_message();
     lock();
     bool released = memory_block_allocator.release(&rcmessage);
@@ -6641,7 +6587,7 @@ class reference_counted_message_pool
             "reference_counted_message_pool.h",
             167))));
       }
-    };
+    }
   }
 
   template <typename TMessage1, typename... TMessages>
