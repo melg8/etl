@@ -29,7 +29,7 @@ jobs:
 
     - name: Run tests
       run: |
-        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:detect_leaks=1
+        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=0:strict_init_order=0:detect_leaks=1
         ./test/etl_tests
 
   build-clang-9-linux-no-stl:
@@ -57,7 +57,7 @@ jobs:
     
     - name: Run tests
       run: |
-        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:detect_leaks=1
+        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=0:strict_init_order=0:detect_leaks=1
         ./test/etl_tests
 
   build-clang-9-linux-stl-force-cpp03:
@@ -83,7 +83,7 @@ jobs:
 
     - name: Run tests
       run: |
-        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:detect_leaks=1
+        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=0:strict_init_order=0:detect_leaks=1
         ./test/etl_tests
 
   build-clang-10-osx-stl:
@@ -107,7 +107,7 @@ jobs:
 
     - name: Run tests
       run: |
-        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:detect_leaks=1
+        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=0:strict_init_order=0:detect_leaks=0
         ./test/etl_tests
 
   build-clang-10-osx-no-stl:
@@ -131,7 +131,7 @@ jobs:
 
     - name: Run tests
       run: |
-        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:detect_leaks=1
+        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=0:strict_init_order=0:detect_leaks=0
         ./test/etl_tests
 
   build-clang-10-osx-stl-force-cpp03:
@@ -155,6 +155,6 @@ jobs:
 
     - name: Run tests
       run: |
-        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:detect_leaks=1
+        export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=0:strict_init_order=0:detect_leaks=0
         ./test/etl_tests
 
